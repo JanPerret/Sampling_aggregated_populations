@@ -41,3 +41,5 @@ vignettes/*.pdf
 # Exclude everything in the folder output
 output/*
 
+# Exclude the Rproj file
+*.Rproj

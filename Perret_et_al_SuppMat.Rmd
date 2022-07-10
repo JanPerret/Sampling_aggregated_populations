@@ -1,0 +1,796 @@
+---
+title: Supplementary Material for "Spatially balanced sampling methods are always
+  more precise than random ones for estimating the size of aggregated populations"
+author: "Jan Perret ([orcid](https://orcid.org/0000-0002-1912-6995)), Anne Charpentier ([orcid](https://orcid.org/0000-0002-8588-6001)), Roger Pradel ([orcid](https://orcid.org/0000-0002-2684-9251)), Guillaume Papuga ([orcid](https://orcid.org/0000-0002-7803-2219)), Aurélien Besnard ([orcid](https://orcid.org/0000-0002-2289-9761))"
+date: "Created on the `r format(Sys.time(), '%Y-%m-%d')`"
+output:
+  html_document:
+    number_sections: no
+    theme: paper
+    toc: yes
+    toc_depth: 2
+  word_document:
+    toc: yes
+    toc_depth: '2'
+toc-title: Table of Content
+---
+
+<style>
+body {
+text-align: justify;
+font-size: 12pt;
+}
+</style>
+
+
+```{r global_options, include = FALSE}
+# set global chunk options
+rm(list = ls())
+library(knitr)
+opts_chunk$set(fig.width = 9, fig.height = 7, fig.align = 'center',
+               echo = FALSE, warning = FALSE, message = FALSE)
+
+```
+
+
+```{r packages, include = FALSE}
+# load packages
+library(spatstat)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(ggpubr)
+library(readr)
+library(kableExtra)
+
+```
+
+
+```{r load data, include = FALSE}
+# load data
+simul_result <- read.csv2(file = "./data/tidy/RUN_2022-06-08_simul_aggregation_intensity_results_merged_patterns_1-60_averaged.csv")
+simul_result_additional_intensities <- read.csv2(file = "./data/tidy/RUN_2022-06-08_simul_aggregation_intensity_results_additional_intensities_merged_patterns_1-60_averaged.csv")
+simul_result <- rbind(simul_result, simul_result_additional_intensities)
+
+df_SBS_dist_neighbours <- read.csv2(file = "./data/tidy/BAS_mean_distance_nearest_units_14_neighbours.csv")
+coef_tab_modality_1 <- read.csv2("./data/tidy/Matern_parameters_coef_tab_total_2021-06-13.csv")
+coef_tab_modality_2 <- read.csv2("./data/tidy/Matern_parameters_coef_tab_total_2021-06-24_kappa.csv")
+coef_tab_modality_3 <- read.csv2("./data/tidy/Matern_parameters_coef_tab_total_2021-06-24_mu.csv")
+simul_result_modality_2 <- read.csv2(file = "./data/tidy/RUN_2022-06-08_simul_aggregation_intensity_results_modality_2_merged_averaged.csv")
+simul_result_modality_3 <- read.csv2(file = "./data/tidy/RUN_2022-06-08_simul_aggregation_intensity_results_modality_3_merged_averaged.csv")
+
+# convert sample_size to factor
+simul_result$sample_size <- factor(simul_result$sample_size, levels = c("9", "15", "25", "49", "100", "150", "196", "300", "400"))
+df_SBS_dist_neighbours$sample_size <- factor(df_SBS_dist_neighbours$sample_size, levels = c("9", "15", "25", "49", "100", "150", "196", "300", "400"))
+simul_result_modality_2$sample_size <- factor(simul_result_modality_2$sample_size, levels = c("9", "15", "25", "49", "100", "150", "196", "300", "400"))
+simul_result_modality_3$sample_size <- factor(simul_result_modality_3$sample_size, levels = c("9", "15", "25", "49", "100", "150", "196", "300", "400"))
+
+```
+
+
+<br>
+
+
+# Appendix S1. Comparison of the three modalities used to increase the density of the virtual populations simulated with the Matérn Cluster process
+
+## Parameter values of the Matérn cluster process
+
+Figure S1.1 shows the values of the three parameters of the Matérn cluster process we used to simulate the virtual populations in order to obtain the desired dispersion index levels. For modalities 1 and 3, we had to increase the cluster radius when increasing population density in order to maintain the same value of dispersion index. Thus, populations with the same dispersion index had larger clusters as density increased. In contrast, for modality 2, clusters had the same radius for the same level of dispersion index at all densities.  <br>
+
+```{r Fig. S1.1, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 17, fig.width = 14}
+# MODALITY 1
+myplot_scale <- ggplot(coef_tab_modality_1,
+                       aes(x = my_scale, y = expect_disp_ind, color = as.factor(theoretical_intensity))) +
+  geom_line(size = 1.5) +
+  xlab('Scale') +
+  ylab("Dispersion index") +
+  labs(color = "Intensity") +
+  theme_bw() +
+  theme(text = element_text(size = 20)) +
+  xlim(0, 28) + 
+  theme(legend.position = "bottom") +
+  guides(color = guide_legend(nrow = 2, byrow = TRUE))
+
+myplot_mu <- ggplot(coef_tab_modality_1,
+                    aes(x = my_mu, y = expect_disp_ind, color = as.factor(theoretical_intensity))) +
+  geom_line(size = 1.5) +
+  xlab('Mu') +
+  ylab("Dispersion index") +
+  labs(color = "Intensity") +
+  theme_bw() +
+  theme(text = element_text(size = 20)) +
+  xlim(0, 3000) + 
+  theme(legend.position = "bottom") +
+  guides(color = guide_legend(nrow = 2, byrow = TRUE))
+
+myplot_kappa <- ggplot(coef_tab_modality_1,
+                       aes(x = my_kappa, y = expect_disp_ind, color = as.factor(theoretical_intensity))) +
+  geom_line(size = 1.5) +
+  xlab('Kappa') +
+  ylab("Dispersion index") +
+  labs(color = "Intensity") +
+  theme_bw() +
+  theme(text = element_text(size = 20)) +
+  xlim(0, 0.3) + 
+  theme(legend.position = "bottom") +
+  guides(color = guide_legend(nrow = 2, byrow = TRUE))
+
+# arrange the 3 graphs on a single page
+fig_S1_modality_1 <- ggpubr::ggarrange(myplot_kappa, myplot_mu, myplot_scale,
+                       ncol = 3, nrow = 1,
+                       common.legend = TRUE, legend = "none")
+fig_S1_modality_1 <- ggpubr::annotate_figure(fig_S1_modality_1,
+                             top = text_grob("Density driven by both mu and kappa (Modality 1)", face = "bold", size = 20))
+
+# MODALITY 2
+myplot_scale <- ggplot(coef_tab_modality_2,
+                       aes(x = my_scale, y = expect_disp_ind, color = as.factor(theoretical_intensity))) +
+  geom_line(size = 1.5) +
+  xlab('Scale') +
+  ylab("Dispersion index") +
+  labs(color = "Intensity") +
+  theme_bw() +
+  theme(text = element_text(size = 20)) +
+  xlim(0, 28) + 
+  theme(legend.position = "bottom") +
+  guides(color = guide_legend(nrow = 2, byrow = TRUE))
+
+myplot_mu <- ggplot(coef_tab_modality_2,
+                    aes(x = my_mu, y = expect_disp_ind, color = as.factor(theoretical_intensity))) +
+  geom_line(size = 1.5) +
+  xlab('Mu') +
+  ylab("Dispersion index") +
+  labs(color = "Intensity") +
+  theme_bw() +
+  theme(text = element_text(size = 20)) +
+  xlim(0, 3000) + 
+  theme(legend.position = "bottom") +
+  guides(color = guide_legend(nrow = 2, byrow = TRUE))
+
+myplot_kappa <- ggplot(coef_tab_modality_2,
+                       aes(x = my_kappa, y = expect_disp_ind, color = as.factor(theoretical_intensity))) +
+  geom_line(size = 1.5) +
+  xlab('Kappa') +
+  ylab("Dispersion index") +
+  labs(color = "Intensity") +
+  theme_bw() +
+  theme(text = element_text(size = 20)) +
+  xlim(0, 0.3) + 
+  theme(legend.position = "bottom") +
+  guides(color = guide_legend(nrow = 2, byrow = TRUE))
+
+# arrange the 3 graphs on a single page
+fig_S1_modality_2 <- ggpubr::ggarrange(myplot_kappa, myplot_mu, myplot_scale,
+                       ncol = 3, nrow = 1,
+                       common.legend = TRUE, legend = "none")
+fig_S1_modality_2 <- ggpubr::annotate_figure(fig_S1_modality_2,
+                             top = text_grob("Density driven by kappa (Modality 2)", face = "bold", size = 20))
+
+# MODALITY 3
+myplot_scale <- ggplot(coef_tab_modality_3,
+                       aes(x = my_scale, y = expect_disp_ind, color = as.factor(theoretical_intensity))) +
+  geom_line(size = 1.5) +
+  xlab('Scale') +
+  ylab("Dispersion index") +
+  labs(color = "Intensity") +
+  theme_bw() +
+  theme(text = element_text(size = 20)) +
+  xlim(0, 28) + 
+  theme(legend.position = "bottom") +
+  guides(color = guide_legend(nrow = 2, byrow = TRUE))
+
+myplot_mu <- ggplot(coef_tab_modality_3,
+                    aes(x = my_mu, y = expect_disp_ind, color = as.factor(theoretical_intensity))) +
+  geom_line(size = 1.5) +
+  xlab('Mu') +
+  ylab("Dispersion index") +
+  labs(color = "Intensity") +
+  theme_bw() +
+  theme(text = element_text(size = 20)) +
+  xlim(0, 3000) + 
+  theme(legend.position = "bottom") +
+  guides(color = guide_legend(nrow = 2, byrow = TRUE))
+
+myplot_kappa <- ggplot(coef_tab_modality_3,
+                       aes(x = my_kappa, y = expect_disp_ind, color = as.factor(theoretical_intensity))) +
+  geom_line(size = 1.5) +
+  xlab('Kappa') +
+  ylab("Dispersion index") +
+  labs(color = "Intensity") +
+  theme_bw() +
+  theme(text = element_text(size = 20)) +
+  xlim(0, 0.3) + 
+  theme(legend.position = "bottom") +
+  guides(color = guide_legend(nrow = 2, byrow = TRUE))
+
+# arrange the 3 graphs on a single page
+fig_S1_modality_3 <- ggpubr::ggarrange(myplot_kappa, myplot_mu, myplot_scale,
+                       ncol = 3, nrow = 1,
+                       common.legend = TRUE, legend = "none")
+fig_S1_modality_3 <- ggpubr::annotate_figure(fig_S1_modality_3,
+                             top = text_grob("Density driven by mu (Modality 3)", face = "bold", size = 20))
+
+# combine the 3 plots
+fig_S1_1 <- ggpubr::ggarrange(fig_S1_modality_1, fig_S1_modality_2, fig_S1_modality_3,
+                              ncol = 1, nrow = 3,
+                              common.legend = TRUE, legend = "bottom", legend.grob = get_legend(myplot_kappa))
+fig_S1_1
+
+```
+
+**Figure S1.1:** Parameter values of the Matérn cluster process used to obtain the desired dispersion index levels under the three possible modalities for increasing the mean density of the virtual populations. The three parameters were the mean density of clusters (kappa), the mean number of individuals per cluster (mu), and the cluster radius (scale).  <br>
+
+  <br>
+
+## Variance ratio as a function of the dispersion index
+
+
+```{r Fig. S1.2 modality 1, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 7.6, fig.width = 6.4}
+palette <- rev(c('#9e0142','#d53e4f','#f46d43','#fdae61','#e6f598','#abdda4','#66c2a5','#3288bd','#5e4fa2'))
+
+### modality 1
+fig_S1_2_SYS <- ggplot(subset(simul_result, simul_result$theoretical_intensity %in% c(1, 10, 20)),
+                       aes(x = dispersion_index, y = var_ratio_syst, color = sample_size)) +
+  geom_hline(yintercept = 1, linetype = "dashed", size = 0.5) +
+  geom_line(size = 0.6) + 
+  scale_x_continuous(limits = c(-0.1, 76), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0.05, 1.2), expand = expansion(mult = c(0, 0))) +
+  ggtitle("Var(Systematic) / Var(Random)") +
+  facet_grid(theoretical_intensity ~ .) + 
+  theme_light() + 
+  theme(legend.position = "bottom", axis.title.x = element_blank(), axis.title.y = element_blank(),
+        plot.title = element_text(size = 11), plot.subtitle = element_text(size = 10),
+        legend.title = element_text(size = 11),  legend.text = element_text(size = 10),
+        axis.text.x = element_text(size = 9), axis.text.y = element_text(size = 9),
+        axis.title = element_text(size = 11),
+        strip.text.y = element_text(size = 10, colour = "black"),
+        strip.background = element_rect(size = 2, colour = "grey88", fill = "grey88")) +
+  guides(color = guide_legend(nrow = 1)) +
+  labs(color = "Sample size") +
+  scale_color_manual(values = palette)
+
+fig_S1_2_SBS <- ggplot(subset(simul_result, simul_result$theoretical_intensity %in% c(1, 10, 20)),
+                       aes(x = dispersion_index, y = var_ratio_BAS, color = sample_size)) +
+  geom_line(size = 0.6) + 
+  scale_x_continuous(limits = c(-0.1, 76), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0.05, 1.2), expand = expansion(mult = c(0, 0))) +
+  ggtitle("Var(Spatially Balanced) / Var(Random)") +
+  geom_hline(yintercept = 1, linetype = "dashed", size = 0.5) +
+  facet_grid(theoretical_intensity ~ .) + 
+  theme_light() + 
+  theme(legend.position = "bottom", axis.title.x = element_blank(), axis.title.y = element_blank(),
+        plot.title = element_text(size = 11), plot.subtitle = element_text(size = 10),
+        legend.title = element_text(size = 11),  legend.text = element_text(size = 10),
+        axis.text.x = element_text(size = 9), axis.text.y = element_text(size = 9),
+        axis.title = element_text(size = 11),
+        strip.text.y = element_text(size = 10, colour = "black"),
+        strip.background = element_rect(size = 2, colour = "grey88", fill = "grey88")) +
+  guides(color = guide_legend(nrow = 1)) +
+  labs(color = "Sample size") +
+  scale_color_manual(values = palette)
+
+# combine the plots
+fig_S1_2_modality_1 <- ggarrange(fig_S1_2_SYS, fig_S1_2_SBS,
+                      ncol = 1, nrow = 2, common.legend = TRUE, legend = "top")
+
+fig_S1_2_modality_1 <- annotate_figure(fig_S1_2_modality_1,
+                            bottom = text_grob("Dispersion index", size = 11),
+                            left = text_grob("Variance ratio", size = 11, rot = 90),
+                            top = text_grob("Modality 1", size = 16, face = "bold"))
+fig_S1_2_modality_1
+
+```
+
+<br>
+
+```{r Fig. S1.2 modality 2, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 7.6, fig.width = 6.4}
+### modality 2
+fig_S1_2_SYS <- ggplot(subset(simul_result_modality_2, simul_result_modality_2$theoretical_intensity %in% c(1, 10, 20)),
+                       aes(x = dispersion_index, y = var_ratio_syst, color = sample_size)) +
+  geom_hline(yintercept = 1, linetype = "dashed", size = 0.5) +
+  geom_line(size = 0.6) + 
+  scale_x_continuous(limits = c(-0.1, 76), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0.05, 1.2), expand = expansion(mult = c(0, 0))) +
+  ggtitle("Var(Systematic) / Var(Random)") +
+  facet_grid(theoretical_intensity ~ .) + 
+  theme_light() + 
+  theme(legend.position = "bottom", axis.title.x = element_blank(), axis.title.y = element_blank(),
+        plot.title = element_text(size = 11), plot.subtitle = element_text(size = 10),
+        legend.title = element_text(size = 11),  legend.text = element_text(size = 10),
+        axis.text.x = element_text(size = 9), axis.text.y = element_text(size = 9),
+        axis.title = element_text(size = 11),
+        strip.text.y = element_text(size = 10, colour = "black"),
+        strip.background = element_rect(size = 2, colour = "grey88", fill = "grey88")) +
+  guides(color = guide_legend(nrow = 1)) +
+  labs(color = "Sample size") +
+  scale_color_manual(values = palette)
+
+fig_S1_2_SBS <- ggplot(subset(simul_result_modality_2, simul_result_modality_2$theoretical_intensity %in% c(1, 10, 20)),
+                       aes(x = dispersion_index, y = var_ratio_BAS, color = sample_size)) +
+  geom_line(size = 0.6) + 
+  scale_x_continuous(limits = c(-0.1, 76), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0.05, 1.2), expand = expansion(mult = c(0, 0))) +
+  ggtitle("Var(Spatially Balanced) / Var(Random)") +
+  geom_hline(yintercept = 1, linetype = "dashed", size = 0.5) +
+  facet_grid(theoretical_intensity ~ .) + 
+  theme_light() + 
+  theme(legend.position = "bottom", axis.title.x = element_blank(), axis.title.y = element_blank(),
+        plot.title = element_text(size = 11), plot.subtitle = element_text(size = 10),
+        legend.title = element_text(size = 11),  legend.text = element_text(size = 10),
+        axis.text.x = element_text(size = 9), axis.text.y = element_text(size = 9),
+        axis.title = element_text(size = 11),
+        strip.text.y = element_text(size = 10, colour = "black"),
+        strip.background = element_rect(size = 2, colour = "grey88", fill = "grey88")) +
+  guides(color = guide_legend(nrow = 1)) +
+  labs(color = "Sample size") +
+  scale_color_manual(values = palette)
+
+# combine the plots
+fig_S1_2_modality_2 <- ggarrange(fig_S1_2_SYS, fig_S1_2_SBS,
+                                 ncol = 1, nrow = 2, common.legend = TRUE, legend = "top")
+
+fig_S1_2_modality_2 <- annotate_figure(fig_S1_2_modality_2,
+                                       bottom = text_grob("Dispersion index", size = 11),
+                                       left = text_grob("Variance ratio", size = 11, rot = 90),
+                                       top = text_grob("Modality 2", size = 16, face = "bold"))
+fig_S1_2_modality_2
+
+```
+
+<br>
+
+```{r Fig. S1.2 modality 3, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 7.6, fig.width = 6.4}
+### modality 3
+fig_S1_3_SYS <- ggplot(subset(simul_result_modality_3, simul_result_modality_3$theoretical_intensity %in% c(1, 10, 20)),
+                       aes(x = dispersion_index, y = var_ratio_syst, color = sample_size)) +
+  geom_hline(yintercept = 1, linetype = "dashed", size = 0.5) +
+  geom_line(size = 0.6) + 
+  scale_x_continuous(limits = c(-0.1, 76), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0.05, 1.2), expand = expansion(mult = c(0, 0))) +
+  ggtitle("Var(Systematic) / Var(Random)") +
+  facet_grid(theoretical_intensity ~ .) + 
+  theme_light() + 
+  theme(legend.position = "bottom", axis.title.x = element_blank(), axis.title.y = element_blank(),
+        plot.title = element_text(size = 11), plot.subtitle = element_text(size = 10),
+        legend.title = element_text(size = 11),  legend.text = element_text(size = 10),
+        axis.text.x = element_text(size = 9), axis.text.y = element_text(size = 9),
+        axis.title = element_text(size = 11),
+        strip.text.y = element_text(size = 10, colour = "black"),
+        strip.background = element_rect(size = 2, colour = "grey88", fill = "grey88")) +
+  guides(color = guide_legend(nrow = 1)) +
+  labs(color = "Sample size") +
+  scale_color_manual(values = palette)
+
+fig_S1_3_SBS <- ggplot(subset(simul_result_modality_3, simul_result_modality_3$theoretical_intensity %in% c(1, 10, 20)),
+                       aes(x = dispersion_index, y = var_ratio_BAS, color = sample_size)) +
+  geom_line(size = 0.6) + 
+  scale_x_continuous(limits = c(-0.1, 76), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0.05, 1.2), expand = expansion(mult = c(0, 0))) +
+  ggtitle("Var(Spatially Balanced) / Var(Random)") +
+  geom_hline(yintercept = 1, linetype = "dashed", size = 0.5) +
+  facet_grid(theoretical_intensity ~ .) + 
+  theme_light() + 
+  theme(legend.position = "bottom", axis.title.x = element_blank(), axis.title.y = element_blank(),
+        plot.title = element_text(size = 11), plot.subtitle = element_text(size = 10),
+        legend.title = element_text(size = 11),  legend.text = element_text(size = 10),
+        axis.text.x = element_text(size = 9), axis.text.y = element_text(size = 9),
+        axis.title = element_text(size = 11),
+        strip.text.y = element_text(size = 10, colour = "black"),
+        strip.background = element_rect(size = 2, colour = "grey88", fill = "grey88")) +
+  guides(color = guide_legend(nrow = 1)) +
+  labs(color = "Sample size") +
+  scale_color_manual(values = palette)
+
+# arrange the plots on a single page
+fig_S1_2_modality_3 <- ggarrange(fig_S1_3_SYS, fig_S1_3_SBS,
+                      ncol = 1, nrow = 2, common.legend = TRUE, legend = "top")
+
+fig_S1_2_modality_3 <- annotate_figure(fig_S1_2_modality_3,
+                            bottom = text_grob("Dispersion index", size = 11),
+                            left = text_grob("Variance ratio", size = 11, rot = 90),
+                            top = text_grob("Modality 3", size = 16, face = "bold"))
+fig_S1_2_modality_3
+
+```
+
+**Figure S1.2:** Ratio of the sampling variance of systematic sampling (SYS) and spatially balanced sampling (SBS) over the sampling variance of simple random sampling (SRS), as a function of the dispersion index (I) of the sampled populations. Panels show three different mean densities of individuals (1, 10 and 20 individuals/cell). For the aggregated populations, density was increased by increasing either both kappa and mu (modality 1), only kappa (modality 2) or only mu (modality 3). Each point of the curves is the ratio of two sampling variances estimated from 1,000 samples drawn for 60 populations.  <br>
+
+<br>
+
+## SYS variance ratio as a function of cluster diameter
+
+<br>
+
+```{r  Fig. S1.3 modality 1, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 7, fig.width = 6.4}
+# mean distance between units for systematic sampling
+dist_df_syst <- data.frame(
+  sample_size = c(     9,     15,     25,     49,    100,   150,   196,   300,   400),
+  mean_dist =   c(40.232, 30.733, 24.142, 17.243, 12.071, 9.561, 8.621, 6.666, 6.035)) # accounting for direct neighbours and diagonal neighbours
+
+# convert sample_size to factor with right order
+dist_df_syst$sample_size <- factor(dist_df_syst$sample_size, levels = c("9", "15", "25", "49", "100", "150", "196", "300", "400"))
+
+# color palette for the plots
+palette2_full <- c('#fed976','#feb24c','#fd8d3c','#fc4e2a','#e31a1c','#bd0026','#800026')
+palette2 <- c('#fed976','#feb24c','#fd8d3c','#e31a1c')
+
+
+### modality 1
+
+# restrict plots to levels given below
+wanted_intensities = c(1, 5, 10, 15, 20, 25, 30)
+wanted_sample_sizes = c(49, 150, 300, 400)
+wanted_sample_sizes = c(49, 100, 196, 400)
+
+
+fig_S1_3_modality_1 <- ggplot(subset(simul_result, simul_result$theoretical_intensity %in% wanted_intensities &
+                                   simul_result$sample_size %in% wanted_sample_sizes),
+                          aes(x = cluster_diam, y = var_ratio_syst, color = as.factor(theoretical_intensity))) +
+  geom_hline(yintercept = 1, linetype = "dashed", size = 0.5) +
+  geom_line(size = 0.6) + 
+  scale_x_continuous(limits = c(-0.1, 26), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0.05, 1.2), expand = expansion(mult = c(0, 0))) +
+  ggtitle("Var(Systematic) / Var(random)") +
+  facet_grid(sample_size ~ .) +
+  geom_vline(data = subset(dist_df_syst, dist_df_syst$sample_size %in% wanted_sample_sizes),
+             aes(xintercept = mean_dist), size = 0.5) +
+  theme_light() +
+  theme(legend.position = "bottom", axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10),
+        plot.title = element_text(size = 11), plot.subtitle = element_text(size = 10),
+        legend.title = element_text(size = 11),  legend.text = element_text(size = 10),
+        axis.text.x = element_text(size = 9), axis.text.y = element_text(size = 9),
+        axis.title = element_text(size = 11),
+        strip.text.y = element_text(size = 10, colour = "black"),
+        strip.background = element_rect(size = 2, colour = "grey88", fill = "grey88"),
+        legend.margin = margin(0, 0, 0, 0), legend.box.margin = margin(-6, -6, -6, -6)) +
+  guides(color = guide_legend(nrow = 1)) +
+  labs(color = "Population density (individuals/cell)") +
+  xlab("Cluster diameter") +
+  ylab("Variance ratio") +
+  scale_color_manual(values = palette2_full)
+
+fig_S1_3_modality_1 <- ggarrange(fig_S1_3_modality_1, ncol = 1, nrow = 1)
+fig_S1_3_modality_1 <- annotate_figure(fig_S1_3_modality_1, top = text_grob("Modality 1", size = 16, face = "bold"))
+fig_S1_3_modality_1
+
+```
+
+<br>
+
+```{r  Fig. S1.3 modality 2, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 7, fig.width = 6.4}
+### modality 2
+
+# restrict plots to levels given below
+wanted_intensities = c(1, 5, 10, 20)
+wanted_sample_sizes = c(49, 150, 300, 400)
+wanted_sample_sizes = c(49, 100, 196, 400)
+
+
+fig_S1_3_modality_2 <- ggplot(subset(simul_result_modality_2, simul_result_modality_2$theoretical_intensity %in% wanted_intensities &
+                                       simul_result_modality_2$sample_size %in% wanted_sample_sizes),
+                              aes(x = cluster_diam, y = var_ratio_syst, color = as.factor(theoretical_intensity))) +
+  geom_hline(yintercept = 1, linetype = "dashed", size = 0.5) +
+  geom_line(size = 0.6) + 
+  scale_x_continuous(limits = c(-0.1, 26), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0.05, 1.2), expand = expansion(mult = c(0, 0))) +
+  ggtitle("Var(Systematic) / Var(random)") +
+  facet_grid(sample_size ~ .) +
+  geom_vline(data = subset(dist_df_syst, dist_df_syst$sample_size %in% wanted_sample_sizes),
+             aes(xintercept = mean_dist), size = 0.5) +
+  theme_light() +
+  theme(legend.position = "bottom", axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10),
+        plot.title = element_text(size = 11), plot.subtitle = element_text(size = 10),
+        legend.title = element_text(size = 11),  legend.text = element_text(size = 10),
+        axis.text.x = element_text(size = 9), axis.text.y = element_text(size = 9),
+        axis.title = element_text(size = 11),
+        strip.text.y = element_text(size = 10, colour = "black"),
+        strip.background = element_rect(size = 2, colour = "grey88", fill = "grey88"),
+        legend.margin = margin(0, 0, 0, 0), legend.box.margin = margin(-6, -6, -6, -6)) +
+  guides(color = guide_legend(nrow = 1)) +
+  labs(color = "Population density (individuals/cell)") +
+  xlab("Cluster diameter") +
+  ylab("Variance ratio") +
+  scale_color_manual(values = palette2)
+
+fig_S1_3_modality_2 <- ggarrange(fig_S1_3_modality_2, ncol = 1, nrow = 1)
+fig_S1_3_modality_2 <- annotate_figure(fig_S1_3_modality_2, top = text_grob("Modality 2", size = 16, face = "bold"))
+fig_S1_3_modality_2
+
+```
+
+<br>
+
+```{r  Fig. S1.3 modality 3, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 7, fig.width = 6.4}
+### modality 3
+
+# restrict plots to levels given below
+wanted_intensities = c(1, 5, 10, 20)
+wanted_sample_sizes = c(49, 150, 300, 400)
+wanted_sample_sizes = c(49, 100, 196, 400)
+
+
+fig_S1_3_modality_3 <- ggplot(subset(simul_result_modality_3, simul_result_modality_3$theoretical_intensity %in% wanted_intensities &
+                                simul_result_modality_3$sample_size %in% wanted_sample_sizes),
+                       aes(x = cluster_diam, y = var_ratio_syst, color = as.factor(theoretical_intensity))) +
+  geom_hline(yintercept = 1, linetype = "dashed", size = 0.5) +
+  geom_line(size = 0.6) + 
+  scale_x_continuous(limits = c(-0.1, 26), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0.05, 1.2), expand = expansion(mult = c(0, 0))) +
+  ggtitle("Var(Systematic) / Var(random)") +
+  facet_grid(sample_size ~ .) +
+  geom_vline(data = subset(dist_df_syst, dist_df_syst$sample_size %in% wanted_sample_sizes),
+             aes(xintercept = mean_dist), size = 0.5) +
+  theme_light() +
+  theme(legend.position = "bottom", axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10),
+        plot.title = element_text(size = 11), plot.subtitle = element_text(size = 10),
+        legend.title = element_text(size = 11),  legend.text = element_text(size = 10),
+        axis.text.x = element_text(size = 9), axis.text.y = element_text(size = 9),
+        axis.title = element_text(size = 11),
+        strip.text.y = element_text(size = 10, colour = "black"),
+        strip.background = element_rect(size = 2, colour = "grey88", fill = "grey88"),
+        legend.margin = margin(0, 0, 0, 0), legend.box.margin = margin(-6, -6, -6, -6)) + # to reduce the space between the plot and the legend
+  guides(color = guide_legend(nrow = 1)) +
+  labs(color = "Population density (individuals/cell)") +
+  xlab("Cluster diameter") +
+  ylab("Variance ratio") +
+  scale_color_manual(values = palette2)
+
+fig_S1_3_modality_3 <- ggarrange(fig_S1_3_modality_3, ncol = 1, nrow = 1)
+fig_S1_3_modality_3 <- annotate_figure(fig_S1_3_modality_3, top = text_grob("Modality 3", size = 16, face = "bold"))
+fig_S1_3_modality_3
+
+```
+
+
+**Figure S1.3:** Ratio of the sampling variance of systematic sampling (SYS) over the sampling variance of simple random sampling (SRS) for the aggregated populations. The x-axis is the cluster diameter, and panels show four different sample sizes. Each curve shows the variance ratio obtained for a different mean density of individuals. The black vertical lines show the point where the distance between the sampling units is equal to the cluster diameter. Density was increased by increasing either both kappa and mu (modality 1), only kappa (modality 2) or only mu (modality 3).
+
+<br>
+
+## SBS variance ratio as a function of cluster diameter
+
+<br>
+
+```{r  Fig. S1.4 modality 1, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 7, fig.width = 6.4}
+# compute the mean distance to the 4 nearest neighbours
+df_SBS_dist_neighbours <- cbind(df_SBS_dist_neighbours, mean_dist = rowMeans(df_SBS_dist_neighbours[, 2:13]))
+
+# restrict plots to levels given below
+wanted_intensities = c(1, 5, 10, 15, 20, 25, 30)
+wanted_sample_sizes = c(49, 150, 300, 400)
+wanted_sample_sizes = c(49, 100, 196, 400)
+
+### modality 1
+fig_S1_4_modality_1 <- ggplot(subset(simul_result, simul_result$theoretical_intensity %in% wanted_intensities &
+                                   simul_result$sample_size %in% wanted_sample_sizes),
+                          aes(x = cluster_diam, y = var_ratio_BAS, color = as.factor(theoretical_intensity))) +
+  geom_hline(yintercept = 1, linetype = "dashed", size = 0.5) +
+  geom_line(size = 0.6) + 
+  scale_x_continuous(limits = c(-0.1, 26), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0.05, 1.2), expand = expansion(mult = c(0, 0))) +
+  ggtitle("Var(Spatially Balanced) / Var(random)") +
+  facet_grid(sample_size ~ .) +
+  geom_vline(data = subset(df_SBS_dist_neighbours, df_SBS_dist_neighbours$sample_size %in% wanted_sample_sizes),
+             aes(xintercept = mean_dist), size = 0.5) +
+  theme_light() +
+  theme(legend.position = "bottom", axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10),
+        plot.title = element_text(size = 11), plot.subtitle = element_text(size = 10),
+        legend.title = element_text(size = 11),  legend.text = element_text(size = 10),
+        axis.text.x = element_text(size = 9), axis.text.y = element_text(size = 9),
+        axis.title = element_text(size = 11),
+        strip.text.y = element_text(size = 10, colour = "black"),
+        strip.background = element_rect(size = 2, colour = "grey88", fill = "grey88"),
+        legend.margin = margin(0, 0, 0, 0), legend.box.margin = margin(-6, -6, -6, -6)) +
+  guides(color = guide_legend(nrow = 1)) +
+  labs(color = "Population density (individuals/cell)") +
+  xlab("Cluster diameter") +
+  ylab("Variance ratio") +
+  scale_color_manual(values = palette2_full)
+
+fig_S1_4_modality_1 <- ggarrange(fig_S1_4_modality_1, ncol = 1, nrow = 1)
+fig_S1_4_modality_1 <- annotate_figure(fig_S1_4_modality_1, top = text_grob("Modality 1", size = 16, face = "bold"))
+fig_S1_4_modality_1
+
+```
+
+<br>
+
+```{r  Fig. S1.4 modality 2, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 7, fig.width = 6.4}
+### modality 2
+
+# restrict plots to levels given below
+wanted_intensities = c(1, 5, 10, 20)
+wanted_sample_sizes = c(49, 150, 300, 400)
+wanted_sample_sizes = c(49, 100, 196, 400)
+
+
+# keep only wanted sample sizes and densities
+simul_result_modality_2_sub <- subset(simul_result_modality_2, simul_result_modality_2$theoretical_intensity %in% wanted_intensities &
+                                   simul_result_modality_2$sample_size %in% wanted_sample_sizes)
+simul_result_modality_2_sub$sample_size <- factor(simul_result_modality_2_sub$sample_size)
+
+# make the plot
+fig_S1_4_modality_2 <- ggplot(simul_result_modality_2_sub,
+                          aes(x = cluster_diam, y = var_ratio_BAS, color = as.factor(theoretical_intensity))) +
+  geom_hline(yintercept = 1, linetype = "dashed", size = 0.5) +
+  geom_line(size = 0.6) + 
+  scale_x_continuous(limits = c(-0.1, 26), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0.05, 1.2), expand = expansion(mult = c(0, 0))) +
+  ggtitle("Var(Spatially Balanced) / Var(random)") +
+  facet_grid(sample_size ~ .) +
+  geom_vline(data = subset(df_SBS_dist_neighbours, df_SBS_dist_neighbours$sample_size %in% wanted_sample_sizes),
+             aes(xintercept = mean_dist), size = 0.5) +
+  theme_light() +
+  theme(legend.position = "bottom", axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10),
+        plot.title = element_text(size = 11), plot.subtitle = element_text(size = 10),
+        legend.title = element_text(size = 11),  legend.text = element_text(size = 10),
+        axis.text.x = element_text(size = 9), axis.text.y = element_text(size = 9),
+        axis.title = element_text(size = 11),
+        strip.text.y = element_text(size = 10, colour = "black"),
+        strip.background = element_rect(size = 2, colour = "grey88", fill = "grey88"),
+        legend.margin = margin(0, 0, 0, 0), legend.box.margin = margin(-6, -6, -6, -6)) +
+  guides(color = guide_legend(nrow = 1)) +
+  labs(color = "Population density (individuals/cell)") +
+  xlab("Cluster diameter") +
+  ylab("Variance ratio") +
+  scale_color_manual(values = palette2)
+
+fig_S1_4_modality_2 <- ggarrange(fig_S1_4_modality_2, ncol = 1, nrow = 1)
+fig_S1_4_modality_2 <- annotate_figure(fig_S1_4_modality_2, top = text_grob("Modality 2", size = 16, face = "bold"))
+fig_S1_4_modality_2
+
+```
+
+<br>
+
+```{r  Fig. S1.4 modality 3, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 7, fig.width = 6.4}
+### modality 3
+
+# restrict plots to levels given below
+wanted_intensities = c(1, 5, 10, 20)
+wanted_sample_sizes = c(49, 150, 300, 400)
+wanted_sample_sizes = c(49, 100, 196, 400)
+
+
+# keep only wanted sample sizes and densities
+simul_result_modality_3_sub <- subset(simul_result_modality_3, simul_result_modality_3$theoretical_intensity %in% wanted_intensities &
+                                   simul_result_modality_3$sample_size %in% wanted_sample_sizes)
+simul_result_modality_3_sub$sample_size <- factor(simul_result_modality_3_sub$sample_size)
+
+# make the plot
+fig_S1_4_modality_3 <- ggplot(simul_result_modality_3_sub,
+                       aes(x = cluster_diam, y = var_ratio_BAS, color = as.factor(theoretical_intensity))) +
+  geom_hline(yintercept = 1, linetype = "dashed", size = 0.5) +
+  geom_line(size = 0.6) + 
+  scale_x_continuous(limits = c(-0.1, 26), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0.05, 1.2), expand = expansion(mult = c(0, 0))) +
+  ggtitle("Var(Spatially Balanced) / Var(random)") +
+  facet_grid(sample_size ~ .) +
+  geom_vline(data = subset(df_SBS_dist_neighbours, df_SBS_dist_neighbours$sample_size %in% wanted_sample_sizes),
+             aes(xintercept = mean_dist), size = 0.5) +
+  theme_light() +
+  theme(legend.position = "bottom", axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10),
+        plot.title = element_text(size = 11), plot.subtitle = element_text(size = 10),
+        legend.title = element_text(size = 11),  legend.text = element_text(size = 10),
+        axis.text.x = element_text(size = 9), axis.text.y = element_text(size = 9),
+        axis.title = element_text(size = 11),
+        strip.text.y = element_text(size = 10, colour = "black"),
+        strip.background = element_rect(size = 2, colour = "grey88", fill = "grey88"),
+        legend.margin = margin(0, 0, 0, 0), legend.box.margin = margin(-6, -6, -6, -6)) +
+  guides(color = guide_legend(nrow = 1)) +
+  labs(color = "Population density (individuals/cell)") +
+  xlab("Cluster diameter") +
+  ylab("Variance ratio") +
+  scale_color_manual(values = palette2)
+
+fig_S1_4_modality_3 <- ggarrange(fig_S1_4_modality_3, ncol = 1, nrow = 1)
+fig_S1_4_modality_3 <- annotate_figure(fig_S1_4_modality_3, top = text_grob("Modality 3", size = 16, face = "bold"))
+fig_S1_4_modality_3
+
+```
+
+
+**Figure S1.4:** Ratio of the sampling variance of spatially balanced sampling (SBS) over the sampling variance of simple random sampling (SRS) for the aggregated populations. The x-axis is the cluster diameter, and panels show four different sample sizes. Each curve shows the variance ratio obtained for a different mean density of individuals. The black vertical lines show the point where the mean distance to the twelve nearest sampling units is equal to the cluster diameter. Density was increased by increasing either both kappa and mu (modality 1), only kappa (modality 2) or only mu (modality 3).  <br>
+
+<br>
+
+# Appendix S2. Examples of simulated virtual populations
+
+The examples of the simulated virtual populations are in the file “Appendix_S2_pattern_illustration.zip”. For the populations simulated using the SSI process, examples are presented for mean densities of 1, 10 and 20 individuals/cell, and levels of dispersion index I = 0.4, 0.6 and 0.8. For the populations simulated using the Matérn cluster process, examples are presented for mean densities of 1, 5, 10, 15, 20, 25 and 30 individuals/cell, and levels of dispersion index of I = 6, 15, 30, 45 and 75. Examples of population are presented for the three density increase modalities. For populations simulated with the Poisson process (I = 1), examples are presented on the same page as the populations simulated with the Matérn cluster process. For the three point processes, the same parameter values were used as for the simulations presented in the main text, but the simulation window was reduced to 25x25 (instead of 100x100) for illustrative purposes. A histogram showing the number of individuals per 1x1 cell is associated to each virtual population.  <br>
+
+
+<br>
+
+
+# Appendix S3. Verification of lack of bias in the density estimates
+
+For all populations, both virtual and natural, whatever the sample size, the mean density estimates resulting from the three sampling methods were always very close to the true population density. The difference between the estimated density and the true density was usually less than 0.1 individual/cell, and sometimes less than 0.01 individual/cell. This indicates that all sampling methods provided unbiased estimates, regardless of the density of the studied population, its aggregation level and the sample size used. This result was expected from sampling theory, as for the three sampling methods the sample mean is a design-unbiased estimator of the population mean, meaning that the estimates will be unbiased whatever the characteristics of the studied population (Thompson, 2012). Figure S3.1 shows the difference between the true population density and the estimated population density for the virtual populations and sampling designs presented in Figure 2 of the main text. Similar results were found for all densities we simulated, and for the three modalities used to increase population density with the Matérn cluster process.  <br>
+
+```{r Fig. S3.1, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 11.4, fig.width = 6.4}
+
+# color palette for the plots
+palette <- rev(c('#9e0142','#d53e4f','#f46d43','#fdae61','#e6f598','#abdda4','#66c2a5','#3288bd','#5e4fa2'))
+
+# make the plot for SRS
+figureS3.1_SRS <- ggplot(subset(simul_result, simul_result$theoretical_intensity %in% c(1, 10, 20)),
+                      aes(x = dispersion_index, y = biais_random, color = sample_size)) +
+  geom_hline(yintercept = 0, linetype = "dashed", size = 0.5) +
+  geom_line(size = 0.6) + 
+  scale_x_continuous(limits = c(-0.1, 76), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(-0.22, 0.22), expand = expansion(mult = c(0, 0))) +
+  ggtitle("Simple Random Sampling (SRS)") +
+  facet_grid(theoretical_intensity ~ .) + 
+  theme_light() + 
+  theme(legend.position = "bottom", axis.title.x = element_blank(), axis.title.y = element_blank(),
+        plot.title = element_text(size = 11), plot.subtitle = element_text(size = 10),
+        legend.title = element_text(size = 11),  legend.text = element_text(size = 10),
+        axis.text.x = element_text(size = 9), axis.text.y = element_text(size = 9),
+        axis.title = element_text(size = 11),
+        strip.text.y = element_text(size = 10, colour = "black"),
+        strip.background = element_rect(size = 2, colour = "grey88", fill = "grey88")) +
+  guides(color = guide_legend(nrow = 1)) +
+  labs(color = "Sample size") +
+  scale_color_manual(values = palette)
+
+# make the plot for SYS
+figureS3.1_SYS <- ggplot(subset(simul_result, simul_result$theoretical_intensity %in% c(1, 10, 20)),
+                      aes(x = dispersion_index, y = biais_syst, color = sample_size)) +
+  geom_hline(yintercept = 0, linetype = "dashed", size = 0.5) +
+  geom_line(size = 0.6) + 
+  scale_x_continuous(limits = c(-0.1, 76), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(-0.22, 0.22), expand = expansion(mult = c(0, 0))) +
+  ggtitle("Systematic Sampling (SYS)") +
+  facet_grid(theoretical_intensity ~ .) + 
+  theme_light() + 
+  theme(legend.position = "bottom", axis.title.x = element_blank(), axis.title.y = element_blank(),
+        plot.title = element_text(size = 11), plot.subtitle = element_text(size = 10),
+        legend.title = element_text(size = 11),  legend.text = element_text(size = 10),
+        axis.text.x = element_text(size = 9), axis.text.y = element_text(size = 9),
+        axis.title = element_text(size = 11),
+        strip.text.y = element_text(size = 10, colour = "black"),
+        strip.background = element_rect(size = 2, colour = "grey88", fill = "grey88")) +
+  guides(color = guide_legend(nrow = 1)) +
+  labs(color = "Sample size") +
+  scale_color_manual(values = palette)
+
+
+# make the plot for SBS
+figureS3.1_SBS <- ggplot(subset(simul_result, simul_result$theoretical_intensity %in% c(1, 10, 20)),
+                      aes(x = dispersion_index, y = biais_BAS, color = sample_size)) +
+  geom_hline(yintercept = 0, linetype = "dashed", size = 0.5) +
+  geom_line(size = 0.6) + 
+  scale_x_continuous(limits = c(-0.1, 76), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(-0.22, 0.22), expand = expansion(mult = c(0, 0))) +
+  ggtitle("Spatially Balanced Sampling (SBS)") +
+  facet_grid(theoretical_intensity ~ .) + 
+  theme_light() + 
+  theme(legend.position = "bottom", axis.title.x = element_blank(), axis.title.y = element_blank(),
+        plot.title = element_text(size = 11), plot.subtitle = element_text(size = 10),
+        legend.title = element_text(size = 11),  legend.text = element_text(size = 10),
+        axis.text.x = element_text(size = 9), axis.text.y = element_text(size = 9),
+        axis.title = element_text(size = 11),
+        strip.text.y = element_text(size = 10, colour = "black"),
+        strip.background = element_rect(size = 2, colour = "grey88", fill = "grey88")) +
+  guides(color = guide_legend(nrow = 1)) +
+  labs(color = "Sample size") +
+  scale_color_manual(values = palette)
+
+
+# arrange the plots together
+figureS3.1 <- ggpubr::ggarrange(figureS3.1_SRS, figureS3.1_SYS, figureS3.1_SBS,
+                             ncol = 1, nrow = 3, common.legend = TRUE, legend = "top")
+
+figureS3.1 <- ggpubr::annotate_figure(figureS3.1,
+                                   bottom = text_grob("Dispersion index", size = 11),
+                                   left = text_grob("Difference between estimated and true population density (individuals/cell)", size = 11, rot = 90))
+
+figureS3.1
+
+```
+
+**Figure S3.1:** Difference between the true population density and the estimated population density obtained with simple random sampling (SRS), systematic sampling (SYS) and spatially balanced sampling (SBS), as a function of the dispersion index (I) of the sampled populations. Panels show three different mean densities of individuals (1, 10 and 20 individuals/cell). For the aggregated populations, density was increased by simultaneously increasing the number of clusters and the number of individuals per cluster (modality 1). Each point of the curves was obtained by computing the average over 60 populations of the difference between the true density and the mean of 1,000 sample means.  <br>
+
+
+  <br>
+  <br>
+  <br>
+

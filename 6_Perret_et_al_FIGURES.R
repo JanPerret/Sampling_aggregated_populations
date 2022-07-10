@@ -2,10 +2,14 @@
 # 
 # Sampling simulation of spatially aggregated populations
 # 
-# Perret_et_al_FIGURES.R
+# 6_Perret_et_al_FIGURES.R
 # 
 # jan.perret@gmail.com
 #########################################################
+
+###
+### script objective : make the figures for the article
+###
 
 # clean workspace
 rm(list = ls())
@@ -36,7 +40,7 @@ df_SBS_dist_neighbours$sample_size <- factor(df_SBS_dist_neighbours$sample_size,
 
 ##### FIGURE 1 : workflow diagram #####
 
-# 1 --- plot 4 patterns with increasing aggregation for one intensity level  
+# 1. plot 4 patterns with increasing aggregation for one intensity level  
 # simulate the patterns to be plotted
 my_window <- owin(c(0, 20), c(0, 20))
 
@@ -88,7 +92,7 @@ print(workflow_patterns)
 dev.off()
 
 
-# 2 --- for one pattern with medium aggregation, 3 sample examples with same sample size and the 3 sampling methods
+# 2. for one pattern with medium aggregation, 3 sample examples with same sample size and the 3 sampling methods
 # draw the samples
 set.seed(20211004)
 mysample_random <- sample_random(pop = pattern1, nx = 20, ny = 20, sample_size = 16)
@@ -114,7 +118,7 @@ print(workflow_samples)
 dev.off()
 
 
-# 3 --- violin plot for this pattern with the 3 sampling methods
+# 3. violin plot for this pattern with the 3 sampling methods
 # draw the samples for the violin plot on a bigger pattern to have smoother violin plots
 
 set.seed(20210921)
@@ -184,7 +188,7 @@ print(violin_pattern1_BIG)
 dev.off()
 
 
-# 4 --- plot one variance ratio curve
+# 4. plot one variance ratio curve
 simul_result_example <- read.csv2(file = "./data/tidy/var_ratio_example_curve_for_Figure_1.csv")
 
 # convert sample_size to factor
@@ -337,7 +341,6 @@ dev.off()
 
 
 ##### FIGURE 4 : results of the 3 plant populations #####
-
 ### make the heatmaps
 # load data
 matrix_SANMIN_long <- read.csv2(file = "./data/tidy/matrix_SANMIN_long.csv")
@@ -416,15 +419,6 @@ dev.off()
 tibble_natural_pop_var_ratio_long <- read.csv2(file = "./data/tidy/variance_ratio_table_natural_populations_60_sample_sizes.csv")
 tibble_natural_pop_var_ratio_long <- tibble(tibble_natural_pop_var_ratio_long)
 
-# to keep only the estimated version of the SYS variance ratio
-# tibble_natural_pop_var_ratio_long <- subset(tibble_natural_pop_var_ratio_long, tibble_natural_pop_var_ratio_long$sampling_method != "SYS")
-# tibble_natural_pop_var_ratio_long$sampling_method[tibble_natural_pop_var_ratio_long$sampling_method == "SYSestimate"] <- "SYS"
-
-# # get dispersion index of the natural populations
-# DispersionIndex(pop = as.matrix(matrix_SANMIN_new), nx = 100, ny = 100) # 7.63
-# DispersionIndex(pop = as.matrix(matrix_LIMGIR_new), nx = 100, ny = 100) # 8.42
-# DispersionIndex(pop = as.matrix(matrix_BELSYL_new), nx = 100, ny = 100) # 2.86
-
 # get mean cluster diameter
 cluster_diameter_SANMIN <- read.csv2(file = "./data/tidy/cluster_diameters_sanguisorba_minor.csv", header = TRUE)
 cluster_diameter_LIMGIR <- read.csv2(file = "./data/tidy/cluster_diameters_limonium_girardianum.csv", header = TRUE)
@@ -447,14 +441,14 @@ dist_df_SYS <- data.frame(
 
 
 # get mean inter-unit distance for SBS
-df_SBS_dist_neighbours <- read.csv2(file = "./data/tidy/BAS_mean_distance_nearest_units_14_neighbours_until_sample_size_625.csv")
+df_SBS_dist_neighbours <- read.csv2(file = "./data/tidy/BAS_mean_distance_nearest_units_14_neighbours.csv")
 df_SBS_dist_neighbours <- cbind(df_SBS_dist_neighbours, mean_dist = rowMeans(df_SBS_dist_neighbours[, 2:13]))
 
 
 # # mean cluster diameter expressed in number of cells
 # mean_diameter_SANMIN/20 # 7.90625
 # mean_diameter_LIMGIR/20 # 5.202128
-# mean_diameter_BELSYL/20 # 2.522727 --> clusters are to small for the sample sizes we simulated
+# mean_diameter_BELSYL/20 # 2.522727 --> clusters are too small for the sample sizes we simulated
 
 # make a dataframe containing the sample size at which the mean cluster diameter is equal to the mean inter-unit distance (taken by linear approximation between the two sample sizes surrounding the mean cluster diameter)
 df_SYS_vline_position <- data.frame(species_name = c("Bellis sylvestris", "Limonium girardianum", "Sanguisorba minor"),
@@ -466,36 +460,6 @@ df_SBS_vline_position <- data.frame(species_name = c("Bellis sylvestris", "Limon
 df_species_name <- data.frame(species = c("BELSYL", "LIMGIR", "SANMIN"),
                               species_name = c("Bellis sylvestris", "Limonium girardianum", "Sanguisorba minor"))
 tibble_natural_pop_var_ratio_long <- left_join(tibble_natural_pop_var_ratio_long, df_species_name, by = "species")
-
-
-# plot the results
-# violin_palette <- c("#377eb8", "#4daf4a", "#e41a1c")
-#                     random     SBS       Systematic
-
-Fieldwork_var_ratio_curves <- ggplot(tibble_natural_pop_var_ratio_long,
-                                     aes(x = sample_size, y = var_ratio, color = sampling_method)) +
-  geom_hline(yintercept = 1, linetype = "dashed", size = 0.5) + 
-  geom_line(size = 1) + 
-  scale_color_manual(values = c("#4daf4a", "#e41a1c")) +
-  scale_x_continuous(limits = c(-0.1, 625), expand = c(0, 0)) +
-  scale_y_continuous(limits = c(0.21, 1.5), expand = c(0, 0)) +
-  facet_grid(species_name ~ .) + 
-  theme_light() + 
-  theme(legend.position = "bottom",
-        plot.title = element_text(size = 12), plot.subtitle = element_text(size = 10),
-        legend.title = element_text(size = 11),  legend.text = element_text(size = 11),
-        axis.text.x = element_text(size = 10), axis.text.y = element_text(size = 10),
-        axis.title = element_text(size = 11),
-        panel.spacing = unit(2, "cm"),
-        strip.text.y = element_text(size = 11, colour = "black"),
-        strip.background = element_rect(size = 2, colour = "grey88", fill = "grey88"),
-        legend.margin = margin(0, 0, 0, 0), legend.box.margin = margin(-6, -6, -6, -6)) +
-  geom_vline(data = df_SYS_vline_position, aes(xintercept = sample_size), size = 0.5, color = "#4daf4a") +
-  geom_vline(data = df_SBS_vline_position, aes(xintercept = sample_size), size = 0.5, color = "#e41a1c") +
-  guides(color = guide_legend(nrow = 1)) +
-  labs(color = "Sampling method") +
-  xlab("Sample size") +
-  ylab("Variance ratio")
 
 
 ## make one plot for every species
@@ -572,15 +536,7 @@ Fieldwork_var_ratio_SANMIN <- ggplot(subset(tibble_natural_pop_var_ratio_long, t
   ylab("Variance ratio")
 
 
-# save the plot
-pdf(file = "./output/plot/Fieldwork_var_ratio_curves.pdf", width = 5.5, height = 8)
-print(Fieldwork_var_ratio_curves)
-dev.off()
-png(file = "./output/plot/Fieldwork_var_ratio_curves.png", width = 5.5, height = 8, units = "in", res = 600)
-print(Fieldwork_var_ratio_curves)
-dev.off()
-
-# save a different plot per species
+# save the plots
 png(file = "./output/plot/Fieldwork_var_ratio_BELSYL.png", width = 5.1, height = 2.5, units = "in", res = 600)
 print(Fieldwork_var_ratio_BELSYL)
 dev.off()
@@ -593,10 +549,9 @@ dev.off()
 
 
 
-##### FIGURE 5 : mecanism illustration #####
-
-# simulate the patterns to be plotted
-my_window <- owin(c(0, 50), c(0, 50)) # window in which we are going to simulate the populations
+##### FIGURE 5 : mechanism illustration #####
+# simulate the pattern to be plotted
+my_window <- owin(c(0, 50), c(0, 50))
 
 set.seed(202100)
 pattern1 <- rMatClust(kappa = 0.003, scale = 7, mu = 300, win = my_window)
@@ -610,9 +565,6 @@ my_pointalpha = 1
 my_quadratalpha = 1
 
 # draw the samples and make the illustration plots
-# violin_palette <- c("#377eb8", "#4daf4a", "#e41a1c")
-#                     random     SBS       Systematic
-
 # sample size n = 9
 plot_random_n9_1 <- plot_sample(pop = pattern1, nx = 20, ny = 20, 
                                 sample_result = sample_random(pop = pattern1, nx = 20, ny = 20, sample_size = 9),
@@ -718,155 +670,4 @@ png(file = "./output/plot/Figure5_mecanism_illustration_circles.png", width = 6.
 print(figure5)
 dev.off()
 
-
-
-##### FIGURE 2 light version for presentations : SYS and SBS variance ratio as a function of dispersion index #####
-
-palette <- rev(c('#9e0142','#f46d43','#fdae61','#e6f598','#66c2a5','#3288bd','#5e4fa2'))
-
-# facet titles
-my_labels <- c("1 ind. / cell", "20 ind. / cell")
-names(my_labels) <- c("1", "20")
-
-
-figure2_SYS <- ggplot(subset(simul_result, simul_result$theoretical_intensity %in% c(1, 20) &
-                               simul_result$sample_size %in% c(9, 25, 49, 100, 196, 300, 400)),
-                      aes(x = dispersion_index, y = var_ratio_syst, color = sample_size)) +
-  geom_hline(yintercept = 1, linetype = "dashed", size = 0.5) +
-  geom_line(size = 0.6) + 
-  scale_x_continuous(limits = c(-0.1, 76), expand = c(0, 0)) +
-  scale_y_continuous(limits = c(0.15, 1.2), expand = expansion(mult = c(0, 0))) +
-  ggtitle("Var(Systematic) / Var(Random)") +
-  facet_grid(theoretical_intensity ~ ., labeller = labeller(theoretical_intensity = my_labels)) + 
-  theme_light() + 
-  theme(legend.position = "bottom", axis.title.x = element_blank(), axis.title.y = element_blank(),
-        plot.title = element_text(size = 11), plot.subtitle = element_text(size = 10),
-        legend.title = element_text(size = 11),  legend.text = element_text(size = 10),
-        axis.text.x = element_text(size = 9), axis.text.y = element_text(size = 9),
-        axis.title = element_text(size = 11),
-        strip.text.y = element_text(size = 10, colour = "black"),
-        strip.background = element_rect(size = 2, colour = "grey88", fill = "grey88")) +
-  guides(color = guide_legend(nrow = 1)) +
-  labs(color = "Sample size") +
-  scale_color_manual(values = palette)
-
-
-figure2_SBS <- ggplot(subset(simul_result, simul_result$theoretical_intensity %in% c(1, 20) &
-                               simul_result$sample_size %in% c(9, 25, 49, 100, 196, 300, 400)),
-                      aes(x = dispersion_index, y = var_ratio_BAS, color = sample_size)) +
-  geom_hline(yintercept = 1, linetype = "dashed", size = 0.5) +
-  geom_line(size = 0.6) + 
-  scale_x_continuous(limits = c(-0.1, 76), expand = c(0, 0)) +
-  scale_y_continuous(limits = c(0.15, 1.2), expand = expansion(mult = c(0, 0))) +
-  ggtitle("Var(Spatially Balanced) / Var(Random)") +
-  facet_grid(theoretical_intensity ~ ., labeller = labeller(theoretical_intensity = my_labels)) + 
-  theme_light() + 
-  theme(legend.position = "bottom", axis.title.x = element_blank(), axis.title.y = element_blank(),
-        plot.title = element_text(size = 11), plot.subtitle = element_text(size = 10),
-        legend.title = element_text(size = 11),  legend.text = element_text(size = 10),
-        axis.text.x = element_text(size = 9), axis.text.y = element_text(size = 9),
-        axis.title = element_text(size = 11),
-        strip.text.y = element_text(size = 10, colour = "black"),
-        strip.background = element_rect(size = 2, colour = "grey88", fill = "grey88")) +
-  guides(color = guide_legend(nrow = 1)) +
-  labs(color = "Sample size") +
-  scale_color_manual(values = palette)
-
-# arrange the plots on a single page
-figure2 <- ggarrange(figure2_SYS, figure2_SBS,
-                     ncol = 1, nrow = 2, common.legend = TRUE, legend = "top")
-
-figure2 <- annotate_figure(figure2,
-                           bottom = text_grob("Dispersion index", size = 11),
-                           left = text_grob("Variance ratio", size = 11, rot = 90))
-
-# save the plot
-png(file = "./output/plot/Figure2_light_for_presentations.png", width = 6.4, height = 5.6, units = "in", res = 600)
-print(figure2)
-dev.off()
-
-
-##### FIGURE 3 light version for presentations  : SYS variance ratio as a function of cluster diameter #####
-# mean distance between units for systematic sampling
-dist_df_syst <- data.frame(
-  sample_size = c(     9,     15,     25,     49,    100,   150,   196,   300,   400),
-  mean_dist =   c(40.232, 30.733, 24.142, 17.243, 12.071, 9.561, 8.621, 6.666, 6.035)) # accounting for direct neighbours and diagonal neighbours
-
-# convert sample_size to factor with right order
-dist_df_syst$sample_size <- factor(dist_df_syst$sample_size, levels = c("9", "15", "25", "49", "100", "150", "196", "300", "400"))
-
-# restrict plots to levels given below
-wanted_intensities = c(1, 5, 10, 15, 20, 25, 30)
-wanted_sample_sizes = c(100, 300, 400)
-
-palette2 <- c('#fed976','#feb24c','#fd8d3c','#fc4e2a','#e31a1c','#bd0026','#800026')
-
-# facet titles
-my_labels <- c("n = 100", "n = 300", "n = 400")
-names(my_labels) <- c("100", "300", "400")
-
-# var ratio SYS with cluster diameter on the x-axis
-figure3 <- ggplot(subset(simul_result, simul_result$theoretical_intensity %in% wanted_intensities &
-                           simul_result$sample_size %in% wanted_sample_sizes),
-                  aes(x = cluster_diam, y = var_ratio_syst, color = as.factor(theoretical_intensity))) +
-  geom_hline(yintercept = 1, linetype = "dashed", size = 0.5) +
-  geom_line(size = 0.6) + 
-  scale_x_continuous(limits = c(-0.1, 26), expand = c(0, 0)) +
-  ggtitle("Var(Systematic) / Var(Random)") +
-  facet_grid(sample_size ~ ., labeller = labeller(sample_size = my_labels)) +
-  geom_vline(data = subset(dist_df_syst, dist_df_syst$sample_size %in% wanted_sample_sizes),
-             aes(xintercept = mean_dist), size = 0.5) +
-  theme_light() +
-  theme(legend.position = "bottom", axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10),
-        plot.title = element_text(size = 11), plot.subtitle = element_text(size = 10),
-        legend.title = element_text(size = 11),  legend.text = element_text(size = 10),
-        axis.text.x = element_text(size = 9), axis.text.y = element_text(size = 9),
-        axis.title = element_text(size = 11),
-        strip.text.y = element_text(size = 10, colour = "black"),
-        strip.background = element_rect(size = 2, colour = "grey88", fill = "grey88"),
-        legend.margin = margin(0, 0, 0, 0), legend.box.margin = margin(-6, -6, -6, -6)) +
-  guides(color = guide_legend(nrow = 1)) +
-  labs(color = "Population density (individuals/cell)") +
-  xlab("Cluster diameter") +
-  ylab("Variance ratio") +
-  scale_color_manual(values = palette2)
-
-png(file = "./output/plot/Figure3_light_for_presentations.png", width = 6.4, height = 5, units = "in", res = 600)
-print(figure3)
-dev.off()
-
-
-##### Sample examples with each sampling method for presentations #####
-
-my_window <- owin(c(0, 20), c(0, 20))
-
-set.seed(20210921)
-pattern1 <- rMatClust(kappa = 0.02236068, scale = 4, mu = 223.6068, win = my_window)
-
-# --- for one pattern with medium aggregation, 3 sample examples with same sample size and the 3 sampling methods
-# draw the samples
-set.seed(20211004)
-mysample_random <- sample_random(pop = pattern1, nx = 20, ny = 20, sample_size = 16)
-mysample_syst <- sample_systematic_fixed_size(pop = pattern1, nx = 20, ny = 20, sample_size = 16)
-mysample_SBS <- sample_BAS(pop = pattern1, nx = 20, ny = 20, sample_size = 16)
-
-# make the plots
-# violin_palette <- c("#377eb8", "#4daf4a", "#e41a1c")
-#                     random     SBS       Systematic
-
-plot_random_1 <- plot_sample(pop = pattern1, nx = 20, ny = 20, sample_result = mysample_random, show.grid = FALSE, quadrat.color = "#377eb8", pointalpha = 0)
-plot_SYS_1 <- plot_sample(pop = pattern1, nx = 20, ny = 20, sample_result = mysample_syst, show.grid = FALSE, quadrat.color = "#e41a1c", pointalpha = 0)
-plot_SBS_1 <- plot_sample(pop = pattern1, nx = 20, ny = 20, sample_result = mysample_SBS, show.grid = FALSE, quadrat.color = "#4daf4a", pointalpha = 0)
-
-
-# save the plots
-png(file = "./output/plot/sample_example_SRS.png", width = 2.5, height = 2.5, units = "in", res = 600)
-print(plot_random_1)
-dev.off()
-png(file = "./output/plot/sample_example_SYS.png", width = 2.5, height = 2.5, units = "in", res = 600)
-print(plot_SYS_1)
-dev.off()
-png(file = "./output/plot/sample_example_SBS.png", width = 2.5, height = 2.5, units = "in", res = 600)
-print(plot_SBS_1)
-dev.off()
 
