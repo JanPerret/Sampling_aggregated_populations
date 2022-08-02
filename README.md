@@ -1,5 +1,5 @@
 
-
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6954499.svg)](https://doi.org/10.5281/zenodo.6954499)
 
 # Sampling_aggregated_populations
 Data and code for a paper on the relative precision of sampling methods for aggregated populations
