@@ -43,3 +43,6 @@ output/*
 
 # Exclude the Rproj file
 *.Rproj
+
+# Exclude word files
+*.docx

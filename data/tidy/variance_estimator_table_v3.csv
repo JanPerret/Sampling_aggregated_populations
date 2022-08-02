@@ -1,0 +1,7 @@
+Notation;Sampling method;Source;Performance tests;Why we choose it
+V_textbook;SRS, SYS and SBS;Cochran (1977) eq. (2.20) p. 26;"McGarvey et al. (2016) ; Magnussen & Fehrmann (2019) ; Magnussen et al. (2020)";Used as benchmark in all papers studying the performance of variance estimators.
+V_8;SYS;Wolter (2007) eq. (8.2.9) p. 302;McGarvey et al. (2016);One of the two best performing estimators among the 13 tested in McGarvey et al. (2016).
+V_w;SYS;D'Orazio (2003) table 2 & eq. (4.3) p. 284 & 285;McGarvey et al. (2016);One of the two best performing estimators among the 13 tested in McGarvey et al. (2016).
+V_str2;SYS;D'Orazio (2003) eq. (4.1) and (4.2) p. 285;"Magnussen & Fehrmann (2019) ; Magnussen et al. (2020)";One of the two best performing estimators among the five tested in Magnussen et al. (2020) that did not show a tendency to underestimate variance.
+V_nbh;SBS;Stevens & Olsen (2003);"Grafstrom et al. (2012) ; Robertson et al. (2013)";The best performing estimator in Grafstrom et al. (2012) and Robertson et al. (2013).
+V_ZIP;SYS and SBS;;;The variance estimator we propose, better adapted to populations following a Matern cluster process than the other estimators which are based on the correlation between neighbouring sampling units.
