@@ -2,13 +2,13 @@
 # 
 # Spatially aggregated populations sampling simulation
 # 
-# estimator_ZIP_based.R
+# 3_sampling_simulation_variance_estimators_virtual_populations.R
 # 
 # jan.perret@gmail.com
 #######################################################
 
 ### 
-### test a new variance estimator based on random sampling of a Zero-inflated Poisson (ZIP) distribution
+### simulate sampling surveys on the virtual populations to assess the performance of variance estimators, including a new estimator based on random sampling of a Zero-inflated Poisson (ZIP) distribution
 ### 
 
 ### clean workspace

@@ -2,7 +2,7 @@
 # 
 # Spatially aggregated populations sampling simulation
 # 
-# estimator_natural_populations.R
+# 3_sampling_simulation_variance_estimators_natural_populations.R
 # 
 # jan.perret@gmail.com
 #######################################################
