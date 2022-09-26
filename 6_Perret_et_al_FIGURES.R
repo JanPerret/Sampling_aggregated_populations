@@ -171,8 +171,8 @@ violin_pattern1_BIG <- ggplot(pattern1_BIG_df,
   theme(legend.position = "none", axis.title.x = element_blank(), axis.title.y = element_text(size = 14),
         plot.title = element_text(size = 12), plot.subtitle = element_text(size = 11),
         legend.title = element_text(size = 11),  legend.text = element_text(size = 11),
-        axis.text.x = element_text(size = 10), axis.text.y = element_text(size = 10),
-        axis.title.y.left = element_text(size = 15),
+        axis.text.x = element_text(size = 12), axis.text.y = element_text(size = 13),
+        axis.title.y.left = element_text(size = 16),
         panel.spacing = unit(0.8, "lines"),
         strip.text.y = element_text(size = 8, colour = "black"),
         strip.background = element_rect(size = 2, colour = "grey88", fill = "grey88")) +
@@ -180,10 +180,10 @@ violin_pattern1_BIG <- ggplot(pattern1_BIG_df,
 
 
 # save the plot
-pdf(file = "./output/plot/Workflow_violin.pdf", width = 4, height = 3)
+pdf(file = "./output/plot/Workflow_violin.pdf", width = 4.35, height = 3)
 print(violin_pattern1_BIG)
 dev.off()
-png(file = "./output/plot/Workflow_violin.png", width = 4, height = 3, units = "in", res = 600)
+png(file = "./output/plot/Workflow_violin.png", width = 4.35, height = 3, units = "in", res = 600)
 print(violin_pattern1_BIG)
 dev.off()
 
@@ -203,10 +203,10 @@ var_ratio_curve <- ggplot(subset(simul_result_example, simul_result_example$theo
   ggtitle("Var(Systematic) / Var(Random)") +
   geom_hline(yintercept = 1, linetype = "dashed", size = 0.5) +
   theme_light() + 
-  theme(legend.position = "none", axis.title.x = element_text(size = 12), axis.title.y = element_text(size = 12),
+  theme(legend.position = "none", axis.title.x = element_text(size = 14), axis.title.y = element_text(size = 14),
         plot.title = element_blank(), plot.subtitle = element_text(size = 10),
         legend.title = element_text(size = 11),  legend.text = element_text(size = 11),
-        axis.text.x = element_text(size = 11), axis.text.y = element_text(size = 11),
+        axis.text.x = element_text(size = 12), axis.text.y = element_text(size = 12),
         axis.title = element_text(size = 12),
         panel.spacing = unit(0.8, "lines"),
         strip.text.y = element_text(size = 8, colour = "black"),
@@ -360,8 +360,8 @@ heatmap_SANMIN <- ggplot(matrix_SANMIN_long, aes(x = x, y = -y, fill = count)) +
         axis.ticks = element_blank(), axis.title.x = element_blank(),axis.title.y = element_blank(),
         legend.position = "bottom", panel.border = element_blank(), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), plot.background = element_blank(), panel.background = element_blank(),
-        legend.title = element_text(size = 17, vjust = 1, margin = margin(t = 7.5)),
-        legend.text = element_text(size = 16),
+        legend.title = element_text(size = 20, vjust = 1, margin = margin(t = 7.5)),
+        legend.text = element_text(size = 20),
         legend.margin = margin(0.1, 0.1, 0.1, 0.1, unit = "cm"), legend.box.margin = margin(0, 0, 0, 0, unit = "cm"),
         plot.margin = margin(0, 0, 0, 0, unit = "cm"),
         legend.box.spacing = unit(-0.3, "cm"),
@@ -377,8 +377,8 @@ heatmap_LIMGIR <- ggplot(matrix_LIMGIR_long, aes(x = x, y = -y, fill = count)) +
         axis.ticks = element_blank(), axis.title.x = element_blank(),axis.title.y = element_blank(),
         legend.position = "bottom", panel.border = element_blank(), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), plot.background = element_blank(), panel.background = element_blank(),
-        legend.title = element_text(size = 17, vjust = 1, margin = margin(t = 7.5)),
-        legend.text = element_text(size = 16),
+        legend.title = element_text(size = 20, vjust = 1, margin = margin(t = 7.5)),
+        legend.text = element_text(size = 20),
         legend.margin = margin(0.1, 0.1, 0.1, 0.1, unit = "cm"), legend.box.margin = margin(0, 0, 0, 0, unit = "cm"),
         plot.margin = margin(0, 0, 0, 0, unit = "cm"),
         legend.box.spacing = unit(-0.3, "cm"),
@@ -393,8 +393,8 @@ heatmap_BELSYL <- ggplot(matrix_BELSYL_long, aes(x = x, y = -y, fill = count)) +
         axis.ticks = element_blank(), axis.title.x = element_blank(),axis.title.y = element_blank(),
         legend.position = "bottom", panel.border = element_blank(), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), plot.background = element_blank(), panel.background = element_blank(),
-        legend.title = element_text(size = 17, vjust = 1, margin = margin(t = 7.5)),
-        legend.text = element_text(size = 16),
+        legend.title = element_text(size = 20, vjust = 1, margin = margin(t = 7.5)),
+        legend.text = element_text(size = 20),
         legend.margin = margin(0.1, 0.1, 0.1, 0.1, unit = "cm"), legend.box.margin = margin(0, 0, 0, 0, unit = "cm"),
         plot.margin = margin(0, 0, 0, 0, unit = "cm"),
         legend.box.spacing = unit(-0.3, "cm"),
@@ -474,8 +474,8 @@ Fieldwork_var_ratio_BELSYL <- ggplot(subset(tibble_natural_pop_var_ratio_long, t
   theme(legend.position = "none",
         plot.title = element_text(size = 12), plot.subtitle = element_text(size = 10),
         legend.title = element_text(size = 11),  legend.text = element_text(size = 11),
-        axis.text.x = element_text(size = 10), axis.text.y = element_text(size = 10),
-        axis.title = element_text(size = 11),
+        axis.text.x = element_text(size = 12), axis.text.y = element_text(size = 12),
+        axis.title = element_text(size = 14),
         panel.spacing = unit(2, "cm"),
         strip.text.y = element_text(size = 11, colour = "black"),
         strip.background = element_rect(size = 2, colour = "grey88", fill = "grey88"),
@@ -497,8 +497,8 @@ Fieldwork_var_ratio_LIMGIR <- ggplot(subset(tibble_natural_pop_var_ratio_long, t
   theme(legend.position = "none",
         plot.title = element_text(size = 12), plot.subtitle = element_text(size = 10),
         legend.title = element_text(size = 11),  legend.text = element_text(size = 11),
-        axis.text.x = element_text(size = 10), axis.text.y = element_text(size = 10),
-        axis.title = element_text(size = 11),
+        axis.text.x = element_text(size = 12), axis.text.y = element_text(size = 12),
+        axis.title = element_text(size = 14),
         panel.spacing = unit(2, "cm"),
         strip.text.y = element_text(size = 11, colour = "black"),
         strip.background = element_rect(size = 2, colour = "grey88", fill = "grey88"),
@@ -522,8 +522,8 @@ Fieldwork_var_ratio_SANMIN <- ggplot(subset(tibble_natural_pop_var_ratio_long, t
   theme(legend.position = "none",
         plot.title = element_text(size = 12), plot.subtitle = element_text(size = 10),
         legend.title = element_text(size = 11),  legend.text = element_text(size = 11),
-        axis.text.x = element_text(size = 10), axis.text.y = element_text(size = 10),
-        axis.title = element_text(size = 11),
+        axis.text.x = element_text(size = 12), axis.text.y = element_text(size = 12),
+        axis.title = element_text(size = 14),
         panel.spacing = unit(2, "cm"),
         strip.text.y = element_text(size = 11, colour = "black"),
         strip.background = element_rect(size = 2, colour = "grey88", fill = "grey88"),
