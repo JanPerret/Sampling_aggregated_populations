@@ -1,9 +1,17 @@
 ---
 title: Supplementary Material for "Spatially balanced sampling methods are always
   more precise than random ones for estimating the size of aggregated populations"
-author: "Jan Perret ([orcid](https://orcid.org/0000-0002-1912-6995)), Anne Charpentier ([orcid](https://orcid.org/0000-0002-8588-6001)), Roger Pradel ([orcid](https://orcid.org/0000-0002-2684-9251)), Guillaume Papuga ([orcid](https://orcid.org/0000-0002-7803-2219)), Aurélien Besnard ([orcid](https://orcid.org/0000-0002-2289-9761))"
-date: "Created on the `r format(Sys.time(), '%Y-%m-%d')`"
+author: |
+ | Jan Perret ([orcid](https://orcid.org/0000-0002-1912-6995)), Anne Charpentier ([orcid](https://orcid.org/0000-0002-8588-6001)), Roger Pradel ([orcid](https://orcid.org/0000-0002-2684-9251)), 
+ | Guillaume Papuga ([orcid](https://orcid.org/0000-0002-7803-2219)), Aurélien Besnard ([orcid](https://orcid.org/0000-0002-2289-9761))
+date: "Created on the 2022-08-01"
+header-includes:
+  - \usepackage{graphicx}
+  - \usepackage{grffile}
 output:
+  pdf_document:
+    toc: yes
+    toc_depth: '3'
   html_document:
     number_sections: no
     theme: paper
@@ -814,7 +822,7 @@ Our new estimator is based on the hypothesis that sampling a population where in
 3. Compute the sampling variance estimate from the population variance based on the hypothesis that the sample was drawn randomly: v_ZIP = (S_hat^2 / n) * (1 - n/N) <br>
 
 
-<br>
+  <br>
 
 **Table S4.1:** Summary of the variance estimators we tested.
 
@@ -826,6 +834,7 @@ df_estimator_description <- read_csv2(file = "./data/tidy/variance_estimator_tab
 ft <- flextable(df_estimator_description)
 ft <- theme_vanilla(ft)
 ft <- align_text_col(ft, align = "left")
+ft <- width(ft, width = c(0.9, 0.8, 0.9, 1.1, 2.7))
 ft
 
 ```
@@ -1712,7 +1721,7 @@ figure2_SBS_vtextbook ; figure2_SBS_vnbh ; figure2_SBS_vZIP
 - For the aggregation levels where SYS and SBS provide the greatest increase in precision relative to SRS, when using the estimators based on the correlation of abundance among neighbouring units, a gain in precision is on average observed despite the fact that these estimators all tend to overestimate the variance.  <br>
 - Under these conditions, the V_ZIP estimator allows for the highest gain in apparent accuracy, for both SYS and SBS.  <br>
 - Leaving aside these levels of aggregation, using SYS and the estimators V_8, V_w or V_ZIP, and using SBS and the estimators V_nbh or V_ZIP seem to allow a consistent increase in the observed precision compared to using SRS and the textbook estimator, but this is mostly due to the estimators underestimating the sampling variance, as for these aggregation levels there is almost no difference in true variance between the sampling methods (Fig. 2).  <br>
-- •	The tendency of V_8 and V_w to underestimate sampling variance for SYS was expected given that we simulated aggregated populations using the Matern process. Indeed, for the high levels of aggregation the populations are composed of clusters with a diameter smaller than the distance between the sampling units, and the clusters are randomly located across the study area. Thus the average correlation of abundance among neighbouring units will be around zero, with an equal chance of being positive or negative. But the V_8 and V_w formulas specify that no correction is made to the textbook estimator when the average correlation between neighbouring units is negative, which certainly leads to this tendency to underestimate the sampling variance on average. See McGarvey et al. (2016) pages 245-246 for a more detailed discussion on this topic.  <br>
+- The tendency of V_8 and V_w to underestimate sampling variance for SYS was expected given that we simulated aggregated populations using the Matern process. Indeed, for the high levels of aggregation the populations are composed of clusters with a diameter smaller than the distance between the sampling units, and the clusters are randomly located across the study area. Thus the average correlation of abundance among neighbouring units will be around zero, with an equal chance of being positive or negative. But the V_8 and V_w formulas specify that no correction is made to the textbook estimator when the average correlation between neighbouring units is negative, which certainly leads to this tendency to underestimate the sampling variance on average. See McGarvey et al. (2016) pages 245-246 for a more detailed discussion on this topic.  <br>
 
 
 <br>
@@ -2483,18 +2492,18 @@ We have to exclude sample sizes below n = 75 from the interpretation because all
 
 ## References
 
-Beckett, S., Jee, J., Ncube, T., Pompilus, S., Washington, Q., Singh, A., & Pal, N. (2014). Zero-inflated Poisson (ZIP) distribution: Parameter estimation and applications to model data from natural calamities. Involve, a Journal of Mathematics, 7(6), 751–767. https://doi.org/10.2140/involve.2014.7.751  <br>
-Cochran, W. G. (1977). Sampling Techniques (3rd ed.). John Wiley & Sons.  <br>
-D’Orazio, M. (2003). Estimating the variance of the sample mean in two-dimensional systematic sampling. Journal of Agricultural, Biological, and Environmental Statistics, 8(3), 280. https://doi.org/10.1198/1085711032174  <br>
-Grafström, A., Lundström, N. L. P., & Schelin, L. (2012). Spatially Balanced Sampling through the Pivotal Method. Biometrics, 68(2), 514–520. https://doi.org/10.1111/j.1541-0420.2011.01699.x  <br>
-Jackman, S., Tahk,  with contributions from A., Zeileis, A., Maimone, C., & Meers, J. F. and Z. (2020). pscl: Political Science Computational Laboratory (1.5.5). https://CRAN.R-project.org/package=pscl  <br>
-Magnussen, S., & Fehrmann, L. (2019). In search of a variance estimator for systematic sampling. Scandinavian Journal of Forest Research, 34(4), 300–312. https://doi.org/10.1080/02827581.2019.1599063  <br>
-Magnussen, S., McRoberts, R. E., Breidenbach, J., Nord-Larsen, T., Ståhl, G., Fehrmann, L., & Schnell, S. (2020). Comparison of estimators of variance for forest inventories with systematic sampling—Results from artificial populations. Forest Ecosystems, 7(1), 17. https://doi.org/10.1186/s40663-020-00223-6  <br>
-McGarvey, R., Burch, P., & Matthews, J. M. (2016). Precision of systematic and random sampling in clustered populations: Habitat patches and aggregating organisms. Ecological Applications, 26(1), 233–248. https://doi.org/10.1890/14-1973  <br>
-Robertson, B. L., Brown, J. A., McDonald, T., & Jaksons, P. (2013). BAS: Balanced Acceptance Sampling of Natural Resources. Biometrics, 69(3), 776–784. https://doi.org/10.1111/biom.12059  <br>
-Stevens, D. L., & Olsen, A. R. (2003). Variance estimation for spatially balanced samples of environmental resources. Environmetrics, 14(6), 593–610. https://doi.org/10.1002/env.606  <br>
-Thompson, S. K. (2012). Sampling (3rd ed.). Wiley.  <br>
-Wolter, K. M. (2007). Introduction to Variance Estimation (2nd ed.). Springer Science & Business Media.  <br>
+- Beckett, S., Jee, J., Ncube, T., Pompilus, S., Washington, Q., Singh, A., & Pal, N. (2014). Zero-inflated Poisson (ZIP) distribution: Parameter estimation and applications to model data from natural calamities. Involve, a Journal of Mathematics, 7(6), 751–767. https://doi.org/10.2140/involve.2014.7.751  \linebreak
+- Cochran, W. G. (1977). Sampling Techniques (3rd ed.). John Wiley & Sons.  \linebreak
+- D’Orazio, M. (2003). Estimating the variance of the sample mean in two-dimensional systematic sampling. Journal of Agricultural, Biological, and Environmental Statistics, 8(3), 280. https://doi.org/10.1198/1085711032174  \linebreak
+- Grafström, A., Lundström, N. L. P., & Schelin, L. (2012). Spatially Balanced Sampling through the Pivotal Method. Biometrics, 68(2), 514–520. https://doi.org/10.1111/j.1541-0420.2011.01699.x  \linebreak
+- Jackman, S., Tahk,  with contributions from A., Zeileis, A., Maimone, C., & Meers, J. F. and Z. (2020). pscl: Political Science Computational Laboratory (1.5.5). https://CRAN.R-project.org/package=pscl  \linebreak
+- Magnussen, S., & Fehrmann, L. (2019). In search of a variance estimator for systematic sampling. Scandinavian Journal of Forest Research, 34(4), 300–312. https://doi.org/10.1080/02827581.2019.1599063  \linebreak
+- Magnussen, S., McRoberts, R. E., Breidenbach, J., Nord-Larsen, T., Ståhl, G., Fehrmann, L., & Schnell, S. (2020). Comparison of estimators of variance for forest inventories with systematic sampling—Results from artificial populations. Forest Ecosystems, 7(1), 17. https://doi.org/10.1186/s40663-020-00223-6  \linebreak
+- McGarvey, R., Burch, P., & Matthews, J. M. (2016). Precision of systematic and random sampling in clustered populations: Habitat patches and aggregating organisms. Ecological Applications, 26(1), 233–248. https://doi.org/10.1890/14-1973  \linebreak
+- Robertson, B. L., Brown, J. A., McDonald, T., & Jaksons, P. (2013). BAS: Balanced Acceptance Sampling of Natural Resources. Biometrics, 69(3), 776–784. https://doi.org/10.1111/biom.12059  \linebreak
+- Stevens, D. L., & Olsen, A. R. (2003). Variance estimation for spatially balanced samples of environmental resources. Environmetrics, 14(6), 593–610. https://doi.org/10.1002/env.606  \linebreak
+- Thompson, S. K. (2012). Sampling (3rd ed.). Wiley.  \linebreak
+- Wolter, K. M. (2007). Introduction to Variance Estimation (2nd ed.). Springer Science & Business Media.  \linebreak
 
 
   <br>
