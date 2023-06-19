@@ -4,7 +4,7 @@
 # Sampling_aggregated_populations
 Data and code for the following paper:
 
-Perret, J., Charpentier, A., Pradel, R., Papuga, G., & Besnard, A. (2022). Spatially balanced sampling methods are always more precise than random ones for estimating the size of aggregated populations. Methods in Ecology and Evolution, 13(12), 2743–2756. \hyperlink{https://doi.org/10.1111/2041-210X.14015}{https://doi.org/10.1111/2041-210X.14015}
+Perret, J., Charpentier, A., Pradel, R., Papuga, G., & Besnard, A. (2022). Spatially balanced sampling methods are always more precise than random ones for estimating the size of aggregated populations. Methods in Ecology and Evolution, 13(12), 2743–2756. https://doi.org/10.1111/2041-210X.14015
 
 Please contact me if something goes wrong with the code, or for any question.
 
