@@ -2,9 +2,11 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6954499.svg)](https://doi.org/10.5281/zenodo.6954499)
 
 # Sampling_aggregated_populations
-Data and code for a paper on the relative precision of sampling methods for aggregated populations
+Data and code for the following paper:
 
-This repository contains all the code to run the sampling survey simulations of spatially aggregated populations used in a paper that is actually under review. Please contact me if something goes wrong with the code, or for any question.
+Perret, J., Charpentier, A., Pradel, R., Papuga, G., & Besnard, A. (2022). Spatially balanced sampling methods are always more precise than random ones for estimating the size of aggregated populations. Methods in Ecology and Evolution, 13(12), 2743–2756. \hyperlink{https://doi.org/10.1111/2041-210X.14015}{https://doi.org/10.1111/2041-210X.14015}
+
+Please contact me if something goes wrong with the code, or for any question.
 
 Mail: [jan.perret@cefe.cnrs.fr](mailto:jan.perret@cefe.cnrs.fr) or [jan.perret@gmail.com](mailto:jan.perret@gmail.com)
 
@@ -24,14 +26,11 @@ I have stored this file separately from the current directory because it contain
 
 **"2_pattern_creation_[...].R"** : The scripts with names starting like this use the point process parameter values obtained in the previous step to create the virtual populations (i.e. point patterns) on which the sampling survey simulations will be carried out.
 
-
 **"3_sampling_simulation_[...].R"** : The scripts with names starting like this perform the sampling survey simulations on the virtual populations created in the previous step or on the three natural populations.
-
 
 **"4_compute_distance_between_sampling_units_SBS.R"** : This script is used to compute the average distance between the sampling units for SBS. Indeed, for SYS the average distance between sample units can easily be calculated by hand, but for SBS it requires running simulations.
 
 **"5_merge_result_files.R"** : This script loads all the files resulting from the simulations and merges them into single files that can be used to make the plots.
 
 **"6_Perret_et_al_FIGURES.R"** : This script makes the plots for the figures of the article.
-
 
